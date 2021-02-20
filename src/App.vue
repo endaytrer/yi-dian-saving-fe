@@ -1,32 +1,44 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+  <div id="app" :class="{ bright: theme === 'bright', dark: theme === 'dark' }">
     <router-view />
+    <NavigatorBar :selection="1" v-if="logined" />
   </div>
 </template>
-
+<script lang="ts">
+import { testLogin } from "@/utils/Requests";
+import NavigatorBar from "@/components/NavigatorBar.vue";
+import { Component, Vue, Watch } from "vue-property-decorator";
+@Component({
+  components: {
+    NavigatorBar,
+  },
+})
+export default class App extends Vue {
+  private theme = "bright";
+  public logined = false;
+  public setTheme(theme: string): void {
+    this.theme = theme;
+  }
+  public async mounted() {
+    this.logined = await testLogin();
+  }
+  @Watch("$route") public async guide() {
+    this.logined = await testLogin();
+  }
+}
+</script>
 <style>
+body {
+  margin: 0;
+  padding: 0;
+}
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: "San Francisco", Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+  color: var(--secondary-foreground);
+  margin: 0;
+  padding: 0;
 }
 </style>
