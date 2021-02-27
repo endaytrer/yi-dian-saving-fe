@@ -25,17 +25,17 @@
                 placeholder="邮箱"
                 autocomplete="off"
             /></el-form-item>
+            <el-form-item label="生日" prop="birthday"
+              ><el-date-picker
+                v-model="user.birthday"
+                placeholder="生日"
+                autocomplete="off"
+            /></el-form-item>
             <el-form-item label="密码" prop="password"
               ><el-input
                 v-model="user.password"
                 placeholder="不少于6个字符"
                 autocomplete="off"
-                show-password /></el-form-item
-            ><el-form-item label="确认密码" prop="confirmPassword"
-              ><el-input
-                placeholder="重新输入密码"
-                autocomplete="off"
-                v-model="user.confirmPassword"
                 show-password /></el-form-item
           ></el-form>
         </el-col>
@@ -56,15 +56,15 @@
 </template>
 
 <script lang="ts">
-import { register, logout, testLogin } from "@/utils/Requests";
+import { register, testLogin } from "@/utils/Requests";
 import { Component, Vue } from "vue-property-decorator";
 @Component({})
 export default class Register extends Vue {
   public user = {
     username: "",
     email: "",
+    birthday: new Date(),
     password: "",
-    confirmPassword: "",
   };
   public rules = {
     username: [
@@ -86,6 +86,13 @@ export default class Register extends Vue {
         trigger: "blur",
       },
     ],
+    birthday: [
+      {
+        required: true,
+        message: "请输入生日",
+        trigger: "blur",
+      },
+    ],
     password: [
       {
         required: true,
@@ -95,28 +102,6 @@ export default class Register extends Vue {
       {
         min: 6,
         message: "密码长度在6个字符及以上",
-        trigger: "blur",
-      },
-    ],
-    confirmPassword: [
-      {
-        required: true,
-        message: "请确认密码",
-        trigger: "blur",
-      },
-      {
-        min: 6,
-        message: "密码长度需在6位以上",
-        trigger: "blur",
-      },
-      {
-        validator: (rule: string, value: string, callback: Function) => {
-          if (value !== this.user.password) {
-            callback(new Error("两次输入密码不一致!"));
-          } else {
-            callback();
-          }
-        },
         trigger: "blur",
       },
     ],
@@ -130,16 +115,17 @@ export default class Register extends Vue {
     const data = await register(
       this.user.username,
       this.user.email,
-      this.user.password
+      this.user.password,
+      this.user.birthday
     );
     if (!data.success) {
-      alert(data.error.message);
+      this.$alert(data.error, "注册失败");
+      console.log(data.error);
       return;
     }
     this.$router.push("/home");
   }
-  public async cancelLogin() {
-    await logout();
+  public cancelLogin() {
     this.$router.push("/");
   }
 }

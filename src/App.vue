@@ -19,7 +19,7 @@ export default class App extends Vue {
   public setTheme(theme: string): void {
     this.theme = theme;
   }
-  public async mounted() {
+  public async created() {
     this.logined = await testLogin();
   }
   @Watch("$route") public async guide() {
@@ -33,12 +33,14 @@ body {
   padding: 0;
 }
 #app {
-  font-family: "San Francisco", Avenir, Helvetica, Arial, sans-serif;
+  font-family: "PingFang SC", "Microsoft YaHei", "Avenir Next", "Avenir",
+    "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: var(--secondary-foreground);
+  background-color: var(--main-background);
   margin: 0;
-  padding: 0;
+  padding: 0 0 50px;
 }
 </style>

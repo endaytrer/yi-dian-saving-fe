@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { login, logout, testLogin } from "@/utils/Requests";
+import { login, testLogin } from "@/utils/Requests";
 import { Component, Vue, Watch } from "vue-property-decorator";
 @Component({})
 export default class Login extends Vue {
@@ -81,13 +81,12 @@ export default class Login extends Vue {
   public async login() {
     const data = await login(this.user.identity, this.user.password);
     if (!data.success) {
-      alert(data.error.message);
+      this.$alert(data.error.message, "登录失败");
       return;
     }
     this.$router.push("/home");
   }
-  public async cancelLogin() {
-    await logout();
+  public cancelLogin() {
     this.$router.push("/");
   }
 }

@@ -4,7 +4,7 @@
       ><i class="el-icon-s-home"></i
       ><span class="nav-text">主页</span></router-link
     >
-    <router-link to="/finance" class="nav-link"
+    <router-link to="/finance" class="nav-link" v-if="this.category >= 0"
       ><i class="el-icon-s-marketing"></i
       ><span class="nav-text">理财</span></router-link
     >
@@ -20,9 +20,15 @@
 </template>
 
 <script lang="ts">
+import axios from "axios";
 import { Component, Vue } from "vue-property-decorator";
-@Component
-export default class NavigatorBar extends Vue {}
+@Component({})
+export default class NavigatorBar extends Vue {
+  public category = -1;
+  public async mounted() {
+    this.category = (await axios.get("/api/category")).data.data;
+  }
+}
 </script>
 
 <style scoped>

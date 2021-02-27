@@ -6,6 +6,10 @@
   --main-foreground: #0d0d0d;
   --contrast-foreground: #fdfdfd;
   --secondary-foreground: #048a3e;
+  --tertiary-foreground: #aaaaaa;
+  --up-foreground: #ff6060;
+  --down-foreground: #46cd75;
+  
 }
 .dark * {
   --navigator-color: #1a412b;
@@ -14,4 +18,7 @@
   --main-foreground: #fdfdfd;
   --contrast-foreground: #fdfdfd;
   --secondary-foreground: #e0e0e0;
+  --tertiary-foreground: #666666;
+  --up-foreground: #ff6060;
+  --down-foreground: #46cd75;
 }

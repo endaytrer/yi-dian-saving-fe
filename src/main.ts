@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 import 'element-ui/lib/theme-chalk/index.css';
 import '@/styles/accents.css';
-import '@/styles/fonts.css';
 import '@/themes/green/index.css';
 
 library.add(faHome, faShoppingCart, faUserFriends, faUser);
