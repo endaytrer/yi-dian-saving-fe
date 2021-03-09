@@ -138,6 +138,15 @@ export default class Abstract extends Vue {
   background-color: var(--color-primary);
   color: var(--contrast-foreground);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.08);
+  animation: keep-resizing 1s infinite;
+}
+@keyframes keepresizing {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 .save-panel {
   display: flex;

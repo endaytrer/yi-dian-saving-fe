@@ -1,6 +1,6 @@
 <template>
   <el-main class="home">
-    <Abstract ref="abstract" moneySign="¥" @needRefresh="refreshAll" />
+    <Abstract ref="abstract" moneySign="¥" @needRefresh="loadProcess" />
     <h5 v-if="!isLoadingProcess">存款进度</h5>
     <el-progress
       v-loading="isLoadingProcess"
