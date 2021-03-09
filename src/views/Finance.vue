@@ -1,6 +1,10 @@
 <template>
   <el-main class="home">
-    <ul class="infinite-list" v-if="investedCount">
+    <ul
+      class="infinite-list"
+      v-if="isLoadingProduct || investedCount"
+      v-loading="isLoadingOwned"
+    >
       <h5>已购产品</h5>
       <li
         v-for="product in ownedProducts"
@@ -24,14 +28,20 @@
           :category="product.product.category"
           :minimumHoldTime="product.product.minimumHoldTime"
           :expires="product.expires"
+          :interestRate="product.interestRate"
+          moneySign="¥"
           @needRefresh="refreshAll"
         />
       </li>
     </ul>
-    <ul class="infinite-list" v-if="productCount">
-      <h5>全部产品</h5>
+    <ul
+      class="infinite-list"
+      v-if="isLoadingProduct || productCount"
+      v-loading="isLoadingProduct"
+    >
+      <h5>全部产品(R1)</h5>
       <li
-        v-for="product in products"
+        v-for="product in r1Products"
         class="infinite-list-item"
         :key="product.id"
       >
@@ -47,6 +57,31 @@
           :remains="product.remains"
           :category="product.category"
           :minimumHoldTime="product.minimumHoldTime"
+          :interestRate="product.interestRate"
+          moneySign="¥"
+          @needRefresh="refreshAll"
+        />
+      </li>
+      <h5>全部产品(R2)</h5>
+      <li
+        v-for="product in r2Products"
+        class="infinite-list-item"
+        :key="product.id"
+      >
+        <Product
+          :productId="product.id"
+          :name="product.productName"
+          :price="product.price"
+          :percentage="
+            ((product.price - product.lastPrice) / product.lastPrice) * 100
+          "
+          :producer="product.providerName"
+          :total="product.total"
+          :remains="product.remains"
+          :category="product.category"
+          :minimumHoldTime="product.minimumHoldTime"
+          :interestRate="product.interestRate"
+          moneySign="¥"
           @needRefresh="refreshAll"
         />
       </li>
@@ -70,10 +105,20 @@ import { Component, Vue } from "vue-property-decorator";
   },
 })
 export default class Finance extends Vue {
-  public products = [];
+  public isLoadingOwned = true;
+  public isLoadingProduct = true;
+  public products: { category: number }[] = [];
   public ownedProducts = [];
   public productCount = 0;
   public investedCount = 0;
+
+  get r1Products() {
+    return this.products.filter((product) => product.category === 0);
+  }
+  get r2Products() {
+    return this.products.filter((product) => product.category > 0);
+  }
+
   async created() {
     if (!(await testLogin())) {
       this.$router.push("/");
@@ -82,14 +127,18 @@ export default class Finance extends Vue {
     this.loadOwned();
   }
   async loadProducts() {
+    this.isLoadingProduct = true;
     const allProducts = await getAllProducts();
     this.productCount = allProducts.total;
     this.products = allProducts.products;
+    this.isLoadingProduct = false;
   }
   async loadOwned() {
+    this.isLoadingOwned = true;
     const ownedProducts = await getInvestedProducts();
     this.investedCount = ownedProducts.total;
     this.ownedProducts = ownedProducts.products;
+    this.isLoadingOwned = false;
   }
   refreshAll() {
     this.loadProducts();

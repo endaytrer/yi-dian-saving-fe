@@ -54,6 +54,18 @@ const routes: Array<RouteConfig> = [
     component: () =>
       import(/* webpackChunkName: "about" */ '../views/Register.vue'),
   },
+  {
+    path: '/changepwd',
+    name: 'ChangePassword',
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/ChangePassword.vue'),
+  },
+  {
+    path: '/circle',
+    name: 'Circle',
+    component: () =>
+      import(/* webpackChunkName: "about" */ '../views/Circle.vue'),
+  },
 ];
 
 const router = new VueRouter({

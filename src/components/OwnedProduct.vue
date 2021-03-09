@@ -3,8 +3,7 @@
     <div class="showed">
       <div class="left-part">
         <h4>{{ name }}</h4>
-        <h2>${{ (price * owned).toFixed(2) }}</h2>
-        <h4 class="percentage">@ ${{ price.toFixed(2) }}/股</h4>
+        <h2>{{ moneySign + (price * owned).toFixed(2) }}</h2>
         <h4
           v-if="profit !== 0"
           class="percentage"
@@ -15,7 +14,7 @@
         >
           <i class="el-icon-circle-plus" v-if="profit > 0"></i>
           <i class="el-icon-remove" v-if="profit < 0"></i>
-          ${{ displayTotalProfit }}
+          {{ moneySign + displayTotalProfit }}
         </h4>
       </div>
 
@@ -46,6 +45,14 @@
         <tr>
           <td>持有量:</td>
           <td>{{ owned }}</td>
+        </tr>
+        <tr>
+          <td>单价:</td>
+          <td>{{ moneySign + price.toFixed(2) }}</td>
+        </tr>
+        <tr>
+          <td>年化收益率:</td>
+          <td>{{ (interestRate * 100).toFixed(2) + "%" }}</td>
         </tr>
         <tr>
           <td>发行商:</td>
@@ -151,6 +158,7 @@ import axios from "axios";
 import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({})
 export default class OwnedProduct extends Vue {
+  @Prop() public interestRate!: number;
   @Prop() public recordId!: number;
   @Prop() public name!: string;
   @Prop() public price!: number;
@@ -163,6 +171,7 @@ export default class OwnedProduct extends Vue {
   @Prop() public category!: number;
   @Prop() public minimumHoldTime!: number;
   @Prop() public expires!: Date;
+  @Prop() public moneySign!: string;
   get unfreezed() {
     return Date.now() > new Date(this.expires).getTime();
   }
@@ -261,7 +270,7 @@ export default class OwnedProduct extends Vue {
     if (!success) {
       this.$alert(error.message, "新买入失败");
     } else {
-      this.$alert("新买入成功", "提示");
+      this.$notify({ message: "新买入成功", title: "提示", type: "success" });
       this.isEditing = false;
       this.$emit("needRefresh");
     }
@@ -276,7 +285,7 @@ export default class OwnedProduct extends Vue {
     if (!success) {
       this.$alert(error.message, "卖出失败");
     } else {
-      this.$alert("卖出成功", "提示");
+      this.$notify({ message: "卖出成功", title: "提示", type: "success" });
       this.isEditing = false;
       this.$emit("needRefresh");
     }
@@ -291,7 +300,7 @@ export default class OwnedProduct extends Vue {
     if (!success) {
       this.$alert(error.message, "修改期限失败");
     } else {
-      this.$alert("修改成功", "提示");
+      this.$notify({ message: "修改成功", title: "提示", type: "success" });
       this.isEditing = false;
       this.$emit("needRefresh");
     }

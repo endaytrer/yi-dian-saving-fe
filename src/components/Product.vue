@@ -3,7 +3,8 @@
     <div class="showed">
       <div class="left-part">
         <h4>{{ name }}</h4>
-        <h2>${{ price.toFixed(2) }}<small>/股</small></h2>
+        <h4><small>年化收益率</small></h4>
+        <h2>{{ (interestRate * 100).toFixed(2) + "%" }}</h2>
       </div>
       <div class="right-part">
         <h3
@@ -29,6 +30,10 @@
     </div>
     <div v-if="isEditing" class="details">
       <table>
+        <tr>
+          <td>单价:</td>
+          <td>{{ moneySign + price.toFixed(2) }}</td>
+        </tr>
         <tr>
           <td>发行商:</td>
           <td>{{ producer }}</td>
@@ -86,6 +91,7 @@ import axios from "axios";
 import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({})
 export default class Product extends Vue {
+  @Prop() public moneySign!: string;
   @Prop() public productId!: number;
   @Prop() public name!: string;
   @Prop() public price!: number;
@@ -95,6 +101,7 @@ export default class Product extends Vue {
   @Prop() public remains!: number;
   @Prop() public category!: number;
   @Prop() public minimumHoldTime!: number;
+  @Prop() public interestRate!: number;
   public buyInfo = {
     buyNumber: 0,
     buyCost: 0,
@@ -151,7 +158,7 @@ export default class Product extends Vue {
     if (!success) {
       this.$alert(error.message, "购买失败");
     } else {
-      this.$alert("购买成功!", "提示");
+      this.$notify({ message: "购买成功", title: "提示", type: "success" });
       this.isEditing = false;
       this.$emit("needRefresh");
     }
@@ -184,7 +191,7 @@ export default class Product extends Vue {
   text-align: left;
 }
 .card h2 {
-  margin: 0;
+  margin: -8px 0 0;
   font-size: 2em;
   text-align: left;
 }
@@ -229,5 +236,9 @@ export default class Product extends Vue {
   padding: 0;
   text-align: left;
   font-size: 0.9em;
+}
+h4 small {
+  color: var(--tertiary-foreground);
+  font-weight: normal;
 }
 </style>

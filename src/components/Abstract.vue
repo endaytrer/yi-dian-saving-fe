@@ -1,14 +1,14 @@
 <template>
-  <el-col class="abstract">
+  <el-col class="abstract" v-loading="isLoading">
     <transition name="el-fade-in"
       ><div v-if="toggleSave === false" class="normal-panel">
         <el-col class="left-panel" :span="15">
           <h4>今天你存了:</h4>
-          <h2>${{ todayMoney.toFixed(2) }}</h2>
+          <h2>{{ moneySign + todayMoney.toFixed(2) }}</h2>
           <table class="info-table">
             <tr>
               <td>存款余额</td>
-              <td>${{ balance.toFixed(2) }}</td>
+              <td>{{ moneySign + balance.toFixed(2) }}</td>
             </tr>
             <tr>
               <td>坚持存款</td>
@@ -16,11 +16,12 @@
             </tr>
           </table>
         </el-col>
-        <button id="save-button" @click="toggleSide">$</button>
+
+        <button id="save-button" @click="toggleSide">{{ moneySign }}</button>
       </div>
       <div v-if="toggleSave === true" class="save-panel">
         <h4>你将存款:</h4>
-        <h1>${{ amount.toFixed(2) }}</h1>
+        <h1>{{ moneySign + amount.toFixed(2) }}</h1>
         <el-slider
           v-model="amount"
           class="amount-slider"
@@ -39,10 +40,13 @@
 </template>
 <script lang="ts">
 import { getUserInfo, saveMoney } from "@/utils/Requests";
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 @Component({})
 export default class Abstract extends Vue {
+  @Prop() moneySign = "¥";
+  isLoading = true;
   todayMoney = 0;
+  target = 0;
   balance = 0;
   continuous = 0;
   amount = 0;
@@ -51,25 +55,32 @@ export default class Abstract extends Vue {
     this.toggleSave = !this.toggleSave;
   }
   async updateUserInfo() {
+    this.isLoading = true;
     const userInfo = await getUserInfo();
     this.todayMoney = Number.parseFloat(userInfo.savedToday);
     this.balance = Number.parseFloat(userInfo.balance);
     this.continuous = Number.parseInt(userInfo.continuous);
+    this.target = Number.parseFloat(userInfo.target);
+    this.isLoading = false;
   }
   async mounted() {
     this.updateUserInfo();
   }
   async save() {
+    this.isLoading = true;
     try {
       await saveMoney(this.amount);
       const userInfo = await getUserInfo();
       this.todayMoney = Number.parseFloat(userInfo.savedToday);
       this.balance = Number.parseFloat(userInfo.balance);
       this.continuous = Number.parseInt(userInfo.continuous);
-      this.$alert("存钱成功", "提示");
+      this.$notify({ type: "success", message: "存钱成功", title: "提示" });
+      this.$emit("needRefresh");
       this.toggleSide();
     } catch (e) {
       this.$alert(e, "存钱失败");
+    } finally {
+      this.isLoading = false;
     }
   }
 }
@@ -97,11 +108,13 @@ export default class Abstract extends Vue {
   font-size: 2em;
 }
 .left-panel .info-table {
+  width: 100%;
   font-size: 0.9em;
   margin: 3px 0 3px;
   color: var(--secondary-foreground);
 }
 .left-panel .info-table tr td:nth-child(1) {
+  width: 60px;
   padding-right: 20px;
 }
 .right-panel {
@@ -143,5 +156,9 @@ export default class Abstract extends Vue {
 .amount-slider {
   width: 100%;
   margin-bottom: 20px;
+}
+.progress {
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
-  <el-main>
-    <el-row :gutter="20">
+  <el-main v-loading.fullscreen.lock="isLoadingFullscreen">
+    <el-row :gutter="20" v-loading="isLoading">
       <el-col :span="12">
         <el-card class="card display-card">
           <h5>今日存款</h5>
-          <h2>${{ today.toFixed(2) }}</h2></el-card
+          <h2>{{ moneySign + today.toFixed(2) }}</h2></el-card
         >
         <el-card class="card display-card">
           <h5>存款进度</h5>
@@ -33,7 +33,7 @@
               },
             ]"
             :width="90"
-            :percentage="Number.parseFloat(((total / target) * 100).toFixed(2))"
+            :percentage="displayPercentage"
             type="circle"
           ></el-progress
         ></el-card>
@@ -41,7 +41,7 @@
       <el-col :span="12"
         ><el-card class="card display-card">
           <h5>存款余额</h5>
-          <h2>${{ total.toFixed(2) }}</h2>
+          <h2>{{ moneySign + total.toFixed(2) }}</h2>
         </el-card>
         <el-card class="card display-card">
           <h5>已坚持天数</h5>
@@ -49,17 +49,14 @@
         ></el-col
       >
     </el-row>
-    <el-card class="card">
-      <h5>主题色</h5>
-    </el-card>
-    <el-card class="card">
+    <el-card class="card" v-loading="isLoading">
       <h5>修改计划</h5>
       <button
         v-if="!isEditable"
         @click="isEditable = !isEditable"
         class="invisible-button"
       >
-        ${{ target.toFixed(2) }}
+        {{ moneySign + target.toFixed(2) }}
       </button>
       <el-input
         type="number"
@@ -72,12 +69,14 @@
     <div class="buttons">
       <el-button
         class="logout"
-        type="primary"
         plain
         round
         @click="isWithdrawing = !isWithdrawing"
         v-if="total"
         >取出存款</el-button
+      >
+      <el-button class="logout" plain round @click="changepwd"
+        >修改密码</el-button
       >
       <el-button class="logout" type="danger" plain round @click="logout"
         >退出登录</el-button
@@ -97,11 +96,17 @@
   </el-main>
 </template>
 <script lang="ts">
-import { getUserInfo, logout } from "@/utils/Requests";
+import { getUserInfo, logout, testLogin } from "@/utils/Requests";
 import { Vue, Component } from "vue-property-decorator";
 import axios from "axios";
+interface ThemeSettable extends Vue {
+  setTheme(theme: string): void;
+}
 @Component({})
 export default class Me extends Vue {
+  public isLoading = true;
+  public isLoadingFullscreen = false;
+  public moneySign = "¥";
   public total = 0;
   public continuous = 0;
   public today = 0;
@@ -110,33 +115,59 @@ export default class Me extends Vue {
   public withdrawAmount = 0;
   public isEditable = false;
   public isWithdrawing = false;
+
+  async mounted() {
+    if (!(await testLogin())) {
+      this.$router.push("/");
+    }
+  }
+  public get displayPercentage() {
+    if (this.target === 0 && this.total === 0) {
+      return 0;
+    }
+    if (this.target === 0) {
+      return 100;
+    }
+    if (this.total / this.target > 1) {
+      return 100;
+    }
+    return Number.parseFloat(((this.total / this.target) * 100).toFixed(2));
+  }
+
   public async logout() {
+    this.isLoadingFullscreen = true;
     await logout();
     this.$router.push("/");
   }
   public async getInfo() {
+    this.isLoading = true;
     const user = await getUserInfo();
     this.total = user.balance;
     this.target = user.target || 0;
     this.tempTarget = this.target;
     this.continuous = user.continuous;
     this.today = user.savedToday;
+    this.isLoading = false;
   }
-  public async created() {
+  public created() {
     this.getInfo();
   }
   public async submitChange() {
+    this.isLoadingFullscreen = true;
     const { data } = await axios.put("/api/target", {
       changeTo: this.tempTarget,
     });
     if (!data.success) {
       this.$alert(data.error.message, "修改计划失败");
+      this.isLoadingFullscreen = false;
     } else {
       this.getInfo();
       this.isEditable = !this.isEditable;
+      this.isLoadingFullscreen = false;
     }
   }
   public async withdraw() {
+    this.isLoadingFullscreen = true;
     const { success, error } = (
       await axios.post("/api/withdraw", {
         amount: this.withdrawAmount,
@@ -144,13 +175,19 @@ export default class Me extends Vue {
     ).data;
     if (!success) {
       this.$alert(error.message, "取款失败");
+      this.isLoadingFullscreen = false;
     } else {
       this.isWithdrawing = false;
       this.getInfo();
-      this.$alert("取款成功", "提示");
+      this.$notify({ message: "取款成功", title: "提示", type: "success" });
+      this.isLoadingFullscreen = false;
     }
   }
+  public changepwd() {
+    this.$router.push("/changepwd");
+  }
   public async withdrawAll() {
+    this.isLoadingFullscreen = true;
     const { success, error } = (
       await axios.post("/api/withdraw", {
         amount: this.total,
@@ -158,10 +195,12 @@ export default class Me extends Vue {
     ).data;
     if (!success) {
       this.$alert(error.message, "取款失败");
+      this.isLoadingFullscreen = false;
     } else {
       this.isWithdrawing = false;
       this.getInfo();
-      this.$alert("取款成功", "提示");
+      this.$notify({ message: "取款成功", title: "提示", type: "success" });
+      this.isLoadingFullscreen = false;
     }
   }
 }

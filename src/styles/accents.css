@@ -1,4 +1,4 @@
-.bright * {
+.bright {
   --color-primary: #04d960 !important;
   --navigator-color: #04d960;
   --highlighted-card: #cbf3d9;
@@ -9,16 +9,16 @@
   --tertiary-foreground: #aaaaaa;
   --up-foreground: #ff6060;
   --down-foreground: #46cd75;
-  
 }
-.dark * {
-  --navigator-color: #1a412b;
-  --highlighted-card: #417c56;
-  --main-background: #0d0d0d;
-  --main-foreground: #fdfdfd;
+.blue {
+  --color-primary: #0484d9 !important;
+  --navigator-color: #048bd9;
+  --highlighted-card: #cbe8f3;
+  --main-background: #fdfdfd;
+  --main-foreground: #0d0d0d;
   --contrast-foreground: #fdfdfd;
-  --secondary-foreground: #e0e0e0;
-  --tertiary-foreground: #666666;
+  --secondary-foreground: #124075;
+  --tertiary-foreground: #aaaaaa;
   --up-foreground: #ff6060;
   --down-foreground: #46cd75;
 }

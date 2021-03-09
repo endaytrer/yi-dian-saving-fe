@@ -1,6 +1,6 @@
 <template>
   <transition name="el-fade-in">
-    <el-col class="register">
+    <el-col class="register" v-loading.fullscreen.lock="isLoading">
       <el-main class="main">
         <el-col class="title-container">
           <h1>亿点存钱</h1>
@@ -60,6 +60,7 @@ import { register, testLogin } from "@/utils/Requests";
 import { Component, Vue } from "vue-property-decorator";
 @Component({})
 export default class Register extends Vue {
+  public isLoading = false;
   public user = {
     username: "",
     email: "",
@@ -112,15 +113,16 @@ export default class Register extends Vue {
     }
   }
   public async register() {
+    this.isLoading = true;
     const data = await register(
       this.user.username,
       this.user.email,
       this.user.password,
       this.user.birthday
     );
+    this.isLoading = false;
     if (!data.success) {
-      this.$alert(data.error, "注册失败");
-      console.log(data.error);
+      this.$alert(data.error.message, "注册失败");
       return;
     }
     this.$router.push("/home");

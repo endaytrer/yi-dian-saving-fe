@@ -57,3 +57,13 @@ export async function getInvestedProducts() {
   }
   return data;
 }
+
+export async function changePassword(oldPassword: string, newPassword: string) {
+  const { success, error } = (
+    await axios.put('/api/changepwd', { oldPassword, newPassword })
+  ).data;
+  if (!success) {
+    throw error.message;
+  }
+  return true;
+}
