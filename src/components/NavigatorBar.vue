@@ -33,6 +33,7 @@ export default class NavigatorBar extends Vue {
 
 <style scoped>
 .nav-bar {
+  z-index: 1000;
   position: fixed;
   bottom: 0;
   left: 0;
