@@ -28,7 +28,7 @@
           :category="product.product.category"
           :minimumHoldTime="product.product.minimumHoldTime"
           :expires="product.expires"
-          :interestRate="product.interestRate"
+          :interestRate="product.product.interestRate"
           moneySign="¥"
           @needRefresh="refreshAll"
         />
